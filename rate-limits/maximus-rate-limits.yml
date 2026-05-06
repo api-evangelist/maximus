@@ -4,84 +4,44 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Maximus
 providerId: maximus
 created: '2026-05-04'
-modified: '2026-05-04'
+modified: '2026-05-05'
+reconciled: false
 tags:
   - Government Services
   - Health
   - Technology
   - Rate Limiting
-  - Quotas
-  - Throttling
-description: Machine-readable rate limit definitions for the Maximus API surface. Captures per-tier quotas,
-  burst behavior, response signaling, and recovery semantics. Defaults are scaffold values to be replaced
-  with published provider limits.
-headers:
-  limit: X-RateLimit-Limit
-  remaining: X-RateLimit-Remaining
-  reset: X-RateLimit-Reset
-  retryAfter: Retry-After
-  policy: RateLimit-Policy
+description: Maximus does not publish API rate limits because there is no public developer surface. Any
+  integration limits are documented inside the relevant federal, state, or commercial contract / interface
+  control document (ICD) and are not externally visible.
+notes: |
+  No public rate-limit documentation. Limits are governed by the contract / ICD / system security plan
+  for each program. Set reconciled=true only if a public API surface emerges.
+sources:
+  - https://www.maximus.com/
 responseCodes:
   throttled: 429
-  quotaExceeded: 429
   serviceUnavailable: 503
 limits:
-  - tier: free
-    name: Free Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 10
-    burst: 20
-    timeFrame: minute
-    applies:
-      - Maximus API
-  - tier: free
-    name: Free Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 1000
-    timeFrame: month
-    applies:
-      - Maximus API
-  - tier: professional
-    name: Professional Tier Default
-    scope: api-key
-    metric: requests_per_minute
-    limit: 100
-    burst: 200
-    timeFrame: minute
-    applies:
-      - Maximus API
-  - tier: professional
-    name: Professional Tier Monthly Quota
-    scope: api-key
-    metric: requests_per_month
-    limit: 100000
-    timeFrame: month
-    applies:
-      - Maximus API
-  - tier: enterprise
-    name: Enterprise Negotiated Limit
+  - name: Contract / ICD limit
     scope: contract
-    metric: requests_per_minute
-    limit: 1000
-    burst: 5000
-    timeFrame: minute
+    metric: varies
+    limit: 'per contract / interface control document'
     applies:
       - Maximus API
+    notes: Throughput and concurrency obligations live in the contract or ICD; engineering teams should
+      reference the system's authority-to-operate (ATO) artifacts.
 policies:
   - name: Backoff Strategy
-    description: Clients should implement exponential backoff with jitter, honoring the Retry-After header
-      when present.
-  - name: Burst Handling
-    description: Short bursts above the steady-state limit are tolerated up to the documented burst ceiling
-      before throttling engages.
-  - name: Quota Reset
-    description: Monthly quotas reset at the start of each calendar month in UTC. Per-minute and per-second
-      windows reset on a sliding-window basis.
-  - name: Fair Use
-    description: Even on uncapped enterprise tiers, sustained usage that materially impacts shared infrastructure
-      may be subject to fair-use throttling.
+    description: Use exponential backoff with jitter on transient errors and honor Retry-After when
+      present.
+  - name: ICD-Driven Limits
+    description: For government workloads, throughput, concurrency, and SLA targets are defined in the
+      Interface Control Document and referenced contracts; integrations must respect those documented
+      limits.
+  - name: Idempotency
+    description: Use unique transaction / case identifiers for state-changing requests so duplicate retries
+      do not create duplicate records of record.
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com

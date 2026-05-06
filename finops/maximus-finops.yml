@@ -1,5 +1,6 @@
 specification: FinOps Framework
 specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
 alignedWith:
   framework: FinOps Foundation Framework
   frameworkUrl: https://www.finops.org/framework/
@@ -8,107 +9,102 @@ alignedWith:
   dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
 provider: Maximus
 providerId: maximus
-publisherName: Maximus
-serviceCategory: API
+publisherName: Maximus, Inc.
+serviceCategory: Government Services / IT Modernization
 created: '2026-05-04'
-modified: '2026-05-04'
+modified: '2026-05-05'
+reconciled: false
 tags:
   - Government Services
   - Health
   - Technology
   - FinOps
-  - Cost Management
   - FOCUS
-description: FinOps framework definition for the Maximus API surface. Provides a FOCUS-aligned mapping
-  for cost allocation, usage measurement, and unit-economics reporting across the provider's APIs.
+description: 'FOCUS-aligned FinOps shape for Maximus: government / commercial contractor priced via
+  contract vehicles (fixed-price, time-and-materials, per-case). FinOps focus is on contract milestone
+  tracking and per-transaction unit economics, not per-API-call billing.'
+notes: |
+  No public per-API pricing. Cost is allocated by program / contract / task order; meters represent
+  contract-level economic units rather than API requests.
+sources:
+  - https://www.maximus.com/
+  - https://www.maximus.com/federal
 principles:
   - name: Visibility
-    description: Make API consumption costs visible to engineering, product, and finance teams in near
-      real-time.
+    description: Track program spend at the task-order / contract-line-item-number (CLIN) level via
+      government invoicing systems (e.g. WAWF / iRAPT for DoD, Treasury IPP for civilian) and integrate
+      with internal ERP for project burn-down.
   - name: Allocation
-    description: Tag every chargeable API call with the consuming team, environment, application, and
-      feature so cost can be allocated.
+    description: Allocate by contract / task order / CLIN. For state / health programs, allocate by
+      state and program (Medicaid, CHIP, child support); for federal IT, allocate by agency, system,
+      and ATO boundary.
   - name: Optimization
-    description: Continuously evaluate request patterns, caching, batching, and tier selection to reduce
-      cost per useful unit of work.
+    description: Optimize contract structure (firm-fixed-price vs. T&M vs. per-case), automate eligibility
+      and contact-center tasks where appropriate, and pursue option years / extensions where unit economics
+      improve at scale.
   - name: Accountability
-    description: Establish budget owners and chargeback or showback flows for each consuming team.
+    description: Assign a contract / program manager per CLIN responsible for invoicing, milestone delivery,
+      and government acceptance of deliverables.
 domains:
   - name: Understand Usage and Cost
     capabilities:
-      - Data Ingestion
       - Allocation
       - Reporting and Analytics
-      - Anomaly Management
   - name: Quantify Business Value
     capabilities:
       - Planning and Estimating
       - Forecasting
       - Budgeting
-      - Benchmarking
       - Unit Economics
   - name: Optimize Usage and Cost
     capabilities:
-      - Architecting for Cloud
-      - Rate Optimization
       - Workload Optimization
-      - Cloud Sustainability
       - Licensing and SaaS
   - name: Manage the FinOps Practice
     capabilities:
-      - FinOps Practice Operations
-      - FinOps Education and Enablement
       - Invoicing and Chargeback
       - Onboarding Workloads
-      - Intersecting Disciplines
 billingModel:
-  pricingCategory: Usage-Based
-  billingFrequency: Monthly
+  pricingCategory: Government Contract (FFP / T&M / Per-Transaction)
+  billingFrequency: Monthly / Per-Milestone
   billingCurrency: USD
   chargeCategories:
-    - Usage
     - Purchase
-    - Tax
-    - Credit
+    - Usage
     - Adjustment
-  chargeFrequency: Recurring
+    - Credit
 focusColumns:
-  ServiceName: Maximus
-  ServiceCategory: Developer Tools / API
+  ServiceName: Maximus Services
+  ServiceCategory: Government Services / IT Modernization
   ProviderName: Maximus
-  PublisherName: Maximus
-  InvoiceIssuerName: Maximus
-  PricingCategory: Usage-Based
-  PricingUnit: request
+  PublisherName: Maximus, Inc.
+  InvoiceIssuerName: Maximus, Inc.
   BillingCurrency: USD
-  ChargeCategory: Usage
+  ChargeCategory: Purchase
 meters:
-  - name: api_requests
-    description: Count of billable API requests
-    unit: request
+  - name: contract_value
+    description: Total contract / task-order value, billed against milestones.
+    unit: USD
+    aggregation: max
+    dimensions:
+      - contract
+      - clin
+      - agency
+  - name: cases_handled
+    description: Eligibility cases or contact-center calls handled (per-transaction contract vehicles).
+    unit: case
     aggregation: sum
     dimensions:
-      - api
-      - endpoint
-      - tier
-      - region
-      - consumer
-  - name: data_egress
-    description: Bytes returned over the network in API responses
-    unit: GB
+      - contract
+      - state
+      - program
+  - name: labor_hours
+    description: Billable labor hours under T&M contracts.
+    unit: hour
     aggregation: sum
     dimensions:
-      - api
-      - region
-      - consumer
-  - name: compute_seconds
-    description: Server-side compute consumed by the request, where applicable
-    unit: second
-    aggregation: sum
-    dimensions:
-      - api
-      - endpoint
-      - tier
+      - contract
+      - labor_category
 apis:
   - name: Maximus API
     baseURL: https://api.maximus.com
@@ -119,11 +115,11 @@ apis:
     serviceName: Maximus API
     serviceCategory: API
 unitEconomics:
-  - name: Cost per 1K Requests
-    metric: billed_cost / (api_requests / 1000)
+  - name: Cost per Case Handled
+    metric: billed_cost / cases_handled
     target: TBD
-  - name: Cost per Active Consumer
-    metric: billed_cost / active_consumers
+  - name: Labor Recovery Rate
+    metric: billable_hours / total_hours
     target: TBD
 maintainers:
   - FN: Kin Lane
