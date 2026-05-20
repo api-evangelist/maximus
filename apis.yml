@@ -28,6 +28,8 @@ apis:
     description: >-
       The Maximus API provides access to platform services and data for enterprise integration and automation.
 common:
+  - type: LinkedIn
+    url: https://www.linkedin.com/company/maximus
   - type: Website
     url: https://www.maximus.com
 maintainers:
