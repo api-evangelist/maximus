@@ -120,10 +120,8 @@ apis:
 unitEconomics:
   - name: Cost per Case Handled
     metric: billed_cost / cases_handled
-    target: TBD
   - name: Labor Recovery Rate
     metric: billable_hours / total_hours
-    target: TBD
 maintainers:
   - FN: Kin Lane
     email: kin@apievangelist.com
